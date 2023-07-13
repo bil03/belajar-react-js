@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-key */
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import CardProducts from '../components/Fragment/CardProducts';
 import Button from '../components/Elements/Button';
 
@@ -39,27 +39,36 @@ const product = [
 const email = localStorage.getItem('email');
 
 const ProductsPage = () => {
-  const [cart, setCart] = useState([
-    {
-      id : 1,
-      qty: 1
-    }
-  ]);
+  const [cart, setCart] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  useEffect(() => {
+    setCart(JSON.parse(localStorage.getItem('cart')) || []);
+  }, []);
 
+  useEffect(() => {
+    if (cart.length > 0) {
+      const sum = cart.reduce((acc, item) => {
+        const products = product.find((p) => p.id === item.id);
+        return acc + products.price * item.qty;
+      }, 0);
+      setTotalPrice(sum);
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+  }, [cart]);
 
   const handleLogout = () => {
     localStorage.removeItem('email');
     localStorage.removeItem('password');
     window.location.href = '/login';
-  }
+  };
 
   const handleAddToCart = (id) => {
-    if (cart.find(item => item.id === id)) {
-      setCart(cart.map(item => item.id === id ? {...item, qty: item.qty + 1} : item));
+    if (cart.find((item) => item.id === id)) {
+      setCart(cart.map((item) => (item.id === id ? { ...item, qty: item.qty + 1 } : item)));
     } else {
-      setCart([...cart, {id, qty: 1}]);
+      setCart([...cart, { id, qty: 1 }]);
     }
-  }
+  };
   return (
     <Fragment>
       <div className="flex justify-end h-20 bg-blue-600 text-white items-center px-10">
@@ -80,7 +89,7 @@ const ProductsPage = () => {
         </div>
         <div className="w-2/6 ">
           <h1 className="text-3xl font-bold text-blue-600 ml-5 mb-2 ">Cart</h1>
-          <table className='text-left table-auto border-separate border-spacing-x-5'>
+          <table className="text-left table-auto border-separate border-spacing-x-5">
             <thead>
               <tr>
                 <th>Product</th>
@@ -91,27 +100,39 @@ const ProductsPage = () => {
             </thead>
             <tbody>
               {cart.map((item) => {
-                const Products = product.find(
-                  (product) => product.id === item.id);
+                const Products = product.find((product) => product.id === item.id);
                 return (
                   <tr key={item.id}>
                     <td>{Products.name}</td>
                     <td>
-                      {Products.price.toLocaleString('id-ID', { 
-                        style: 'currency', 
-                        currency: 'IDR' 
+                      {Products.price.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
                       })}
                     </td>
                     <td>{item.qty}</td>
                     <td>
-                      {(item.qty * Products.price).toLocaleString('id-ID', { 
-                        style: 'currency', 
-                        currency: 'IDR' 
+                      {(item.qty * Products.price).toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
                       })}
                     </td>
                   </tr>
                 );
               })}
+              <tr>
+                <td colSpan={3}>
+                  <b>Total Price</b>
+                </td>
+                <td>
+                  <b>
+                    {totalPrice.toLocaleString('id-ID', {
+                      style: 'currency',
+                      currency: 'IDR',
+                    })}
+                  </b>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
