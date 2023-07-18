@@ -3,27 +3,18 @@ import { Fragment, useEffect, useState, useRef } from 'react';
 import CardProducts from '../components/Fragment/CardProducts';
 import Button from '../components/Elements/Button';
 import { getProducts } from '../services/product.service';
-import { getUsername } from '../services/auth.service';
+// import { getUsername } from '../services/auth.service';
+import { useLogin } from '../hooks/useLogin';
 
 const ProductsPage = () => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [products, setProducts] = useState([]);
-  const [username, setUsername] = useState("");
+  const username = useLogin();
 
   useEffect(() => {
     setCart(JSON.parse(localStorage.getItem('cart')) || []);
   }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setUsername(getUsername(token));
-    }else {
-      window.location.href = '/login';
-    }
-    
-  }, [])
 
   useEffect (() => {
     getProducts((data) => {
@@ -57,12 +48,12 @@ const ProductsPage = () => {
   };
 
   //useRef
-  const cartRef = useRef(JSON.parse(localStorage.getItem('cart')) || []);
+  // const cartRef = useRef(JSON.parse(localStorage.getItem('cart')) || []);
 
-  const handleAddToCartRef = (id) => {
-    cartRef.current = [...cartRef.current, { id, qty: 1 }];
-    localStorage.setItem('cart', JSON.stringify(cartRef.current));
-  };
+  // const handleAddToCartRef = (id) => {
+  //   cartRef.current = [...cartRef.current, { id, qty: 1 }];
+  //   localStorage.setItem('cart', JSON.stringify(cartRef.current));
+  // };
 
   const totalPriceRef = useRef(null);
 
@@ -87,7 +78,7 @@ const ProductsPage = () => {
           {products.length > 0 && 
             products.map((product) => (
             <CardProducts key={product.title}>
-              <CardProducts.Header image={product.image} />
+              <CardProducts.Header image={product.image} id={product.id} />
               <CardProducts.Body name={product.title}>{product.description}</CardProducts.Body>
               <CardProducts.Footer price={product.price} id={product.id} handleAddToCart={handleAddToCart} />
             </CardProducts>
