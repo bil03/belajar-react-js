@@ -13,7 +13,7 @@ const cartReducer = createReducer([], (builder) => {
 const login = createAction('CREATE SESSION');
 
 const loginReducer = createReducer({status:false}, (builder) => {
-  builder.addCase(login, (state, action) => {
+  builder.addCase(login, (state) => {
     state.status = true
   });
 })
